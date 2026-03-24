@@ -19,14 +19,19 @@
    Each entry generates: a navbar tab + a full menu section.
 ══════════════════════════════════════════════════════ */
 const categories = [
-  { id: 'grills',    title: 'Grills',         icon: '🔥' },
-  { id: 'eastern',   title: 'Eastern Dishes',  icon: '🍲' },
-  { id: 'western',   title: 'Western Dishes',  icon: '🍽️' },
-  { id: 'beverages', title: 'Beverages',       icon: '🥤' },
-  { id: 'juices',    title: 'Juices',          icon: '🍹' },
-  { id: 'vegetables',    title: 'Vegetables',          icon: '🥬' },
-  { id: 'desserts',    title: 'Desserts',          icon: '🍰' },
-  { id: 'coffee',    title: 'Coffee',          icon: '🍵' },
+  { id: 'شوربات',    title: 'شوربات',         icon: '🔥' },
+  { id: 'السلطات',   title: 'السلطات',  icon: '🍲' },
+  { id: 'المقبلات الباردة',   title: 'المقبلات الباردة',  icon: '🍽️' },
+  { id: 'مقبلات ساخنة', title: 'مقبلات ساخنة',       icon: '🥤' },
+  { id: 'فطور صباحي',    title: 'فطور صباحي',          icon: '🍹' },
+  { id: 'اكلات شرقية',    title: 'اكلات شرقية',          icon: '🥬' },
+  { id: 'ساندوش',    title: 'ساندوش',          icon: '🍰' },
+  { id: 'الباستا',    title: 'الباستا',          icon: '🍵' },
+  { id: 'اطباق غربية',    title: 'اطباق غربية',          icon: '🍵' },
+  { id: 'مشاوي',    title: 'مشاوي',          icon: '🍵' },
+  { id: 'البارستا',    title: 'البارستا',          icon: '🍵' },
+  { id: 'حلويات',    title: 'كيك',          icon: '🍵' },
+  
 ];
 
 /* ══════════════════════════════════════════════════════
