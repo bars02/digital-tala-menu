@@ -117,8 +117,11 @@ function releaseFocus(container) {
    Generates navbar tabs + menu sections.
 ══════════════════════════════════════════════════════ */
 function renderCategories() {
-  categories.forEach((cat, index) => {
+  /* Clear existing content to prevent duplicates on re-render */
+  dom.categoryTabsList.innerHTML = '';
+  dom.menuMain.innerHTML = '';
 
+  categories.forEach((cat, index) => {
     /* ── Navbar tab ── */
     const li  = document.createElement('li');
     li.setAttribute('role', 'presentation');
@@ -211,6 +214,9 @@ function renderDishes() {
       return;
     }
 
+    /* Clear grid before filling */
+    grid.innerHTML = '';
+
     /* DocumentFragment batches DOM writes — one reflow per category */
     const fragment = document.createDocumentFragment();
     catDishes.forEach(dish => fragment.appendChild(renderDishCard(dish)));
@@ -296,16 +302,22 @@ function initCategoryTabs() {
   dom.categoryTabsList.addEventListener('click', e => {
     const tab = e.target.closest('.cat-tab');
     if (!tab) return;
-    setActiveTab(tab);
+    
     const section = document.getElementById(`section-${tab.dataset.category}`);
     if (!section) return;
-    const offset = dom.navbar.offsetHeight + 12;
-    const top    = section.getBoundingClientRect().top + window.scrollY - offset;
+
+    /* Use a stable offset for fixed navbar (approx 100px on mobile) */
+    const offset = dom.navbar.offsetHeight || 100;
+    const top    = section.getBoundingClientRect().top + window.scrollY - offset + 2;
+    
     window.scrollTo({ top, behavior: 'smooth' });
+    
+    /* Active state will be handled by IntersectionObserver during scroll */
   });
 
   /* ── IntersectionObserver: sync active tab on page scroll ── */
   const sections = document.querySelectorAll('.menu-section');
+  /* rootMargin: top offset should roughly match navbar height to trigger cleanly */
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
@@ -314,14 +326,14 @@ function initCategoryTabs() {
       );
       if (tab) setActiveTab(tab);
     });
-  }, { rootMargin: `-${dom.navbar.offsetHeight + 20}px 0px -55% 0px` });
+  }, { rootMargin: '-105px 0px -50% 0px', threshold: 0.1 });
 
   sections.forEach(s => observer.observe(s));
 
-  /* Activate first tab on load */
+  /* Activate first tab on load if visible */
   requestAnimationFrame(() => {
-    const first = dom.categoryTabsList.querySelector('.cat-tab');
-    if (first) setActiveTab(first);
+    const firstTab = dom.categoryTabsList.querySelector('.cat-tab');
+    if (firstTab && window.scrollY < 300) setActiveTab(firstTab);
   });
 }
 

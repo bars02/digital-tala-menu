@@ -7,7 +7,7 @@ const translations = {
     "cart_empty": "سلتك فارغة",
     "cart_total": "المجموع",
     "place_order": "تأكيد الطلب",
-    "story_title": "قصة الطبق",
+    "story_title": "الوصف",
     "add_to_cart": "أضف للسلة",
     "no_results": "لا توجد أطباق.",
     "order_received": "تم استلام طلبك! سنتواصل معك قريباً. 🎉",
@@ -25,7 +25,7 @@ const translations = {
     "cart_empty": "Your cart is empty",
     "cart_total": "Total",
     "place_order": "Place Order",
-    "story_title": "The Story of the Dish",
+    "story_title": "The Description",
     "add_to_cart": "Add to Cart",
     "no_results": "No dishes found.",
     "order_received": "Order received! We will contact you shortly. 🎉",
@@ -43,7 +43,7 @@ const translations = {
     "cart_empty": "سەبەتەکەت بەتاڵە",
     "cart_total": "کۆی گشتی",
     "place_order": "دووپاتکردنەوەی داواکاری",
-    "story_title": "چیرۆکی خواردنەکە",
+    "story_title": "ڕێزینەکە",
     "add_to_cart": "زیادکردن بۆ سەبەتە",
     "no_results": "هیچ خواردنێک نەدۆزرایەوە.",
     "order_received": "داواکاریەکەت وەرگیرا! بە زوویی پەیوەندیمان پێوە دەکەین. 🎉",
@@ -65,7 +65,7 @@ function setLanguage(lang) {
   if (['ar', 'en', 'ku'].includes(lang)) {
     currentLang = lang;
     localStorage.setItem('tala_lang', lang);
-    
+
     // Dispatch event to re-render dynamic content
     window.dispatchEvent(new Event('languagechange'));
   }
