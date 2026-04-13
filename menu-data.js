@@ -248,4 +248,115 @@ const dishes = [
     description_ku: 'تێکەڵەیەکی نایاب لە ئێسپرێسۆ و کەفی شیرین لەگەڵ تامی زەعفەرانی ئەسڵی، لەگەڵ کەمێک دارچین.',
   },
 
+  /* ── Soups ────────────────────────────────────────── */
+  {
+    id: 's1',
+    category: 'soups',
+    price: 6000,
+    image: 'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80',
+    name: 'شوربة عدس',
+    name_en: 'Lentil Soup',
+    name_ku: 'شۆربای نیسک',
+    description: 'شوربة عدس تقليدية بالبهارات الدافئة، تقدم مع قطع الخبز المحمص والليمون.',
+    description_en: 'Traditional lentil soup with warm spices, served with toasted bread crisps and a wedge of lemon.',
+    description_ku: 'شۆربای نیسکی نەریتی بە بەهاراتی گەرم، لەگەڵ نانی برژاو و لیمۆ پێشکەش دەکرێت.',
+  },
+
+  /* ── Salads ───────────────────────────────────────── */
+  {
+    id: 'sl1',
+    category: 'salads',
+    price: 7500,
+    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+    name: 'سلطة السيزر',
+    name_en: 'Caesar Salad',
+    name_ku: 'زەڵاتەی قەیسەر',
+    description: 'خس روماني مقرمش، خبز محمص، وجبنة بارميزان مع صلصة السيزر الغنية.',
+    description_en: 'Crisp romaine lettuce, croutons, and parmesan cheese tossed in a rich Caesar dressing.',
+    description_ku: 'کاهووی ڕۆمانی، نانی برژاو، و پەنیری پارمەزان لەگەڵ سۆسی قەیسەری دەوڵەمەند.',
+  },
+
+  /* ── Cold Appetizers ──────────────────────────────── */
+  {
+    id: 'ca1',
+    category: 'cold_appetizers',
+    price: 5000,
+    image: 'https://images.unsplash.com/photo-1633321586523-2895fbc99014?w=600&q=80',
+    name: 'حمص بالطحينة',
+    name_en: 'Hummus',
+    name_ku: 'حوموس',
+    description: 'حمص كريمي مهروس مع طحينة، ليمون، وزيت زيتون بكر فائق الجودة.',
+    description_en: 'Creamy mashed chickpeas blended with tahini, lemon juice, and extra virgin olive oil.',
+    description_ku: 'نۆکی کوڵاو تێکەڵ بە تەحین، ئاوی لیمۆ، و زەیتی زەیتوونی نایاب.',
+  },
+
+  /* ── Hot Appetizers ───────────────────────────────── */
+  {
+    id: 'ha1',
+    category: 'hot_appetizers',
+    price: 6500,
+    image: 'https://images.unsplash.com/photo-1541592106381-b31e9677c0e5?w=600&q=80',
+    name: 'بطاطا مقلية',
+    name_en: 'French Fries',
+    name_ku: 'پەتاتەی سوورکراوە',
+    description: 'بطاطا مقلية ذهبية ومقرمشة، تقدم مع تشكيلة من الصلصات اللذيذة.',
+    description_en: 'Golden, crispy French fries served with a variety of delicious dipping sauces.',
+    description_ku: 'پەتاتەی سوورکراوەی زێڕین و کریسپی، لەگەڵ جۆرەها سۆسی تامدار پێشکەش دەکرێت.',
+  },
+
+  /* ── Breakfast ────────────────────────────────────── */
+  {
+    id: 'br1',
+    category: 'breakfast',
+    price: 15000,
+    image: 'https://images.unsplash.com/photo-1533089859715-db1c521eb282?w=600&q=80',
+    name: 'فطور تالة المميز',
+    name_en: 'Tala Special Breakfast',
+    name_ku: 'نانی بەیانی تایبەتی تالە',
+    description: 'فطور متكامل يضم البيض، الأجبان، الزيتون، والعسل الطازج، مع خبز التنور الساخن وشاي عراقي.',
+    description_en: 'A complete breakfast featuring eggs, artisanal cheeses, olives, and fresh honey, served with hot tandoor bread and Iraqi tea.',
+    description_ku: 'نانی بەیانییەکی تەواو کە هێلکە، پەنیر، زەیتون و هەنگوینی فرێش لەخۆدەگرێت، لەگەڵ نانی تەنوور و چای عێراقی گەرم پێشکەش دەکرێت.',
+  },
+
+  /* ── Sandwiches ───────────────────────────────────── */
+  {
+    id: 'sw1',
+    category: 'sandwiches',
+    price: 8500,
+    image: 'https://images.unsplash.com/photo-1561651823-34feb02250e4?w=600&q=80',
+    name: 'شاورما دجاج',
+    name_en: 'Chicken Shawarma',
+    name_ku: 'شاورمەی مریشک',
+    description: 'قطع دجاج متبلة مشوية على السيخ، ملفوفة بخبز الصاج الطازج مع صلصة الثوم والمخللات.',
+    description_en: 'Marinated chicken pieces roasted on a spit, wrapped in fresh saj bread with garlic sauce and pickles.',
+    description_ku: 'پارچە مریشکی بەهاراتدارکراو لەسەر شیش دەبرژێنرێت، بە نانی ساجی فرێش لەگەڵ سۆسی سیر و ترشیات دەپێچرێتەوە.',
+  },
+
+  /* ── Pasta ────────────────────────────────────────── */
+  {
+    id: 'p1',
+    category: 'pasta',
+    price: 13000,
+    image: 'https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600&q=80',
+    name: 'معكرونة بينا ارابياتا',
+    name_en: 'Penne Arrabbiata',
+    name_ku: 'پاستا پێنێ ئارابیاتا',
+    description: 'معكرونة بصلصة الطماطم الغنية بالثوم ورقائق الفلفل الحار والريحان الطازج.',
+    description_en: 'Penne pasta tossed in a robust tomato sauce with garlic, chili flakes, and fresh basil.',
+    description_ku: 'پاستای پێنێ تێکەڵ بە سۆسی تەماتەی بەهێز لەگەڵ سیر، وردە بیبەری توون، و توورەکەی فرێش.',
+  },
+
+  /* ── Desserts ─────────────────────────────────────── */
+  {
+    id: 'd1',
+    category: 'desserts',
+    price: 9000,
+    image: 'https://images.unsplash.com/photo-1541783245831-57d6fb0926d3?w=600&q=80',
+    name: 'بقلاوة تركية',
+    name_en: 'Turkish Baklava',
+    name_ku: 'بەقلاوەی تورکی',
+    description: 'طبقات مقرمشة من عجينة الفيلو المحشوة بالفستق الحلبي، والمحلاة بقطر الفانيليا.',
+    description_en: 'Crispy layers of phyllo dough generously filled with pistachios and sweetened with fragrant vanilla syrup.',
+    description_ku: 'چینە کریسپییەکانی هەویری فیلۆ کە پڕکراوە لە فستق و بە شرووبی ڤانێلای بۆنخۆش شیرین کراوە.',
+  }
 ];
