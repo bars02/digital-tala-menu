@@ -1256,8 +1256,10 @@ ul { list-style: none; }
   }
 
   .hero__lang-switch {
-    top: calc(env(safe-area-inset-top, 0px) + 20px);
-    inset-inline-end: 16px;
+    top: max(24px, calc(env(safe-area-inset-top, 0px) + 20px));
+    right: 16px;
+    left: auto;
+    z-index: 999;
   }
 }
 
@@ -1279,9 +1281,10 @@ ul { list-style: none; }
 ══════════════════════════════════════════════════════ */
 .hero__lang-switch {
   position: absolute;
-  top: calc(env(safe-area-inset-top, 0px) + 24px);
-  inset-inline-end: 24px;
-  z-index: 50;
+  top: max(28px, calc(env(safe-area-inset-top, 0px) + 24px));
+  right: 24px;
+  left: auto;
+  z-index: 999;
   display: flex;
   align-items: center;
   gap: 4px;
