@@ -460,8 +460,10 @@ function initDishModal() {
    CART
 ══════════════════════════════════════════════════════ */
 function loadCart() {
+  // مسح السلة القديمة من التخزين الدائم إن وجدت
+  localStorage.removeItem('tala_cart');
   try {
-    const saved = localStorage.getItem('tala_cart');
+    const saved = sessionStorage.getItem('tala_cart');
     if (saved) state.cart = JSON.parse(saved);
   } catch (_) {
     state.cart = [];
@@ -469,7 +471,7 @@ function loadCart() {
 }
 
 function saveCart() {
-  localStorage.setItem('tala_cart', JSON.stringify(state.cart));
+  sessionStorage.setItem('tala_cart', JSON.stringify(state.cart));
 }
 
 function addToCart(dish, qty = 1) {

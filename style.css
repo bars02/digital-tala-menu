@@ -934,6 +934,7 @@ ul { list-style: none; }
   top: 0; right: 0;
   width: min(380px, 100vw);
   height: 100vh;
+  height: 100dvh;
   background: var(--clr-cream);
   border-left: 1.5px solid var(--clr-border);
   box-shadow: -8px 0 40px rgba(0,0,0,0.18);
@@ -994,6 +995,7 @@ ul { list-style: none; }
 
 .cart-panel__items {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 16px 24px;
   display: flex;
@@ -1252,6 +1254,11 @@ ul { list-style: none; }
     padding: 11px 28px;
     font-size: 0.8rem;
   }
+
+  .hero__lang-switch {
+    top: calc(env(safe-area-inset-top, 0px) + 20px);
+    inset-inline-end: 16px;
+  }
 }
 
 /* Small desktop / large tablet — 2 columns */
@@ -1272,7 +1279,7 @@ ul { list-style: none; }
 ══════════════════════════════════════════════════════ */
 .hero__lang-switch {
   position: absolute;
-  top: 24px;
+  top: calc(env(safe-area-inset-top, 0px) + 24px);
   inset-inline-end: 24px;
   z-index: 50;
   display: flex;
