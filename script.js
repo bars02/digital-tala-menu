@@ -332,13 +332,20 @@ function initCategoryTabs() {
 function initReveal() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      entry.target.classList.add('revealed');
-      observer.unobserve(entry.target);
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
+      }
     });
-  }, { rootMargin: '0px 0px -80px 0px', threshold: 0.08 });
+  }, { rootMargin: '0px 0px -50px 0px', threshold: 0.05 });
 
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  document.querySelectorAll('.reveal').forEach(el => {
+    observer.observe(el);
+    /* Safety: if it's already in viewport (e.g. mobile reload), reveal it */
+    if (el.getBoundingClientRect().top < window.innerHeight) {
+        el.classList.add('revealed');
+    }
+  });
 }
 
 /* ══════════════════════════════════════════════════════
@@ -720,6 +727,17 @@ function initParticles() {
 function enterMenuMode() {
   document.body.classList.add('menu-mode');
   dom.navbar.classList.add('visible');
+  
+  /* Ensure dishes are rendered if they somehow weren't */
+  if (dom.menuMain.children.length === 0) {
+    renderCategories();
+    renderDishes();
+    initReveal();
+  }
+
+  /* Force immediate reveal for sections since the hero is now gone */
+  document.querySelectorAll('.menu-section').forEach(s => s.classList.add('revealed'));
+  
   window.scrollTo(0, 0);
 }
 
@@ -761,9 +779,7 @@ function handleHashRouting() {
    3. All init*()        — wire up events on existing nodes
 ══════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
-  handleHashRouting();
-
-  /* Setup Language Switcher */
+  /* Setup Language Switcher first to get currentLang */
   initLanguageSwitch();
 
   /* Build the menu from menu-data.js */
@@ -780,14 +796,18 @@ document.addEventListener('DOMContentLoaded', () => {
   initCart();
   initParticles();
 
+  /* Handle routing/scrolling AFTER rendering is complete */
+  handleHashRouting();
+
   /* Register Service Worker for PWA */
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js')
         .then(registration => {
-          console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, err => {
-          console.log('ServiceWorker registration failed: ', err);
+          console.log('ServiceWorker registered:', registration.scope);
+        })
+        .catch(err => {
+          console.log('ServiceWorker failed:', err);
         });
     });
   }
