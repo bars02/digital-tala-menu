@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tala-pwa-cache-v2';
+const CACHE_NAME = 'tala-pwa-cache-v3';
 const urlsToCache = [
   './',
   './index.html',
@@ -8,7 +8,8 @@ const urlsToCache = [
   './menu-data.js',
   './manifest.json',
   './images/logo.png',
-  './images/hero-bg.png'
+  './images/hero-bg.png',
+  './images/logo.pwa.jpeg'
 ];
 
 // Install Service Worker and cache initial resources

@@ -9,9 +9,9 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "images/logo.pwa.png",
+      "src": "images/logo.pwa.jpeg",
       "sizes": "192x192 512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]
