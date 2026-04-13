@@ -65,10 +65,14 @@ const dom = {
 /* ══════════════════════════════════════════════════════
    UTILITIES
 ══════════════════════════════════════════════════════ */
+/** Helper for localized properties */
+function getLangKey(baseKey) {
+  return currentLang === 'ar' ? baseKey : `${baseKey}_${currentLang}`;
+}
 
 /** Format a number as IQD price string */
 function formatPrice(n) {
-  return n.toLocaleString('en-IQ') + ' IQD';
+  return n.toLocaleString('en-IQ') + ' ' + t('currency');
 }
 
 /** Show a brief toast notification */
@@ -124,7 +128,7 @@ function renderCategories() {
     btn.setAttribute('role', 'tab');
     btn.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
     btn.dataset.category = cat.id;
-    btn.textContent = cat.title;
+    btn.textContent = cat[getLangKey('title')] || cat.title;
     btn.setAttribute('translate', 'no');
 
     li.appendChild(btn);
@@ -140,7 +144,7 @@ function renderCategories() {
     section.innerHTML = `
       <div class="section-header">
         <h2 id="cat-heading-${cat.id}" class="section-title">
-          <span class="section-title__icon">${cat.icon}</span> <span translate="no">${cat.title}</span>
+          <span class="section-title__icon">${cat.icon}</span> <span translate="no">${cat[getLangKey('title')] || cat.title}</span>
         </h2>
         <div class="section-title__line" aria-hidden="true"></div>
       </div>
@@ -166,7 +170,7 @@ function renderDishCard(dish) {
 
   /* Data attrs used for search filtering and event delegation */
   card.dataset.id       = dish.id;
-  card.dataset.name     = dish.name.toLowerCase();
+  card.dataset.search   = `${dish.name} ${dish.name_en || ''} ${dish.name_ku || ''}`.toLowerCase();
   card.dataset.category = dish.category;
 
   card.innerHTML = `
@@ -179,7 +183,7 @@ function renderDishCard(dish) {
       />
     </div>
     <div class="dish-card__body">
-      <h3 class="dish-card__name" translate="no">${dish.name}</h3>
+      <h3 class="dish-card__name" translate="no">${dish[getLangKey('name')] || dish.name}</h3>
       <p class="dish-card__price" translate="no">${formatPrice(dish.price)}</p>
     </div>
   `;
@@ -369,7 +373,7 @@ function filterDishes() {
   const cards = document.querySelectorAll('.dish-card');
 
   cards.forEach(card => {
-    card.classList.toggle('hidden', Boolean(query) && !card.dataset.name.includes(query));
+    card.classList.toggle('hidden', Boolean(query) && !card.dataset.search.includes(query));
   });
 
   /* Show/hide "no results" message per grid */
@@ -381,7 +385,7 @@ function filterDishes() {
       if (!noRes) {
         noRes = document.createElement('p');
         noRes.className = 'no-results';
-        noRes.textContent = 'No dishes found.';
+        noRes.textContent = t('no_results');
         grid.appendChild(noRes);
       }
     } else if (noRes) {
@@ -403,10 +407,10 @@ function openDishModal(dish) {
   state.modalQty  = 1;
 
   dom.modalImg.src            = dish.image;
-  dom.modalImg.alt            = dish.name;
-  dom.modalTitle.textContent  = dish.name;
-  dom.modalPrice.textContent  = formatPrice(dish.price);
-  dom.modalDesc.textContent   = dish.description;
+  dom.modalImg.alt            = dish[getLangKey('name')] || dish.name;
+  dom.modalTitle.textContent  = dish[getLangKey('name')] || dish.name;
+  dom.modalPrice.textContent  = formatPrice(dish.price).replace(t('currency'), '').trim();
+  dom.modalDesc.textContent   = dish[getLangKey('description')] || dish.description;
   dom.modalQtyVal.textContent = '1';
 
   dom.dishModal.classList.add('open');
@@ -444,7 +448,7 @@ function initDishModal() {
     const item = state.modalItem;
     addToCart(item, state.modalQty);
     closeDishModal();
-    showToast(`${item.name} added to your order`);
+    showToast(`${item[getLangKey('name')] || item.name} ${t('added_to_cart')}`);
   });
 
   document.addEventListener('keydown', e => {
@@ -473,7 +477,15 @@ function addToCart(dish, qty = 1) {
   if (existing) {
     existing.qty += qty;
   } else {
-    state.cart.push({ id: dish.id, name: dish.name, price: dish.price, qty, image: dish.image });
+    state.cart.push({ 
+      id: dish.id, 
+      name: dish.name, 
+      name_en: dish.name_en, 
+      name_ku: dish.name_ku, 
+      price: dish.price, 
+      qty, 
+      image: dish.image 
+    });
   }
   saveCart();
   renderCart();
@@ -522,7 +534,7 @@ function renderCart() {
     el.className = 'cart-item';
     el.innerHTML = `
       <div>
-        <p class="cart-item__name">${item.name}</p>
+        <p class="cart-item__name">${item[getLangKey('name')] || item.name}</p>
         <div class="cart-item__meta">
           <div class="cart-item__qty-controls">
             <button class="cart-item__qty-btn" data-action="dec" data-id="${item.id}" aria-label="Decrease quantity">−</button>
@@ -565,8 +577,8 @@ function initCart() {
   });
 
   document.querySelector('.cart-order-btn').addEventListener('click', () => {
-    if (!state.cart.length) { showToast('Your cart is empty'); return; }
-    showToast('Order received! We will contact you shortly. 🎉', 3200);
+    if (!state.cart.length) { showToast(t('cart_empty')); return; }
+    showToast(t('order_received'), 3200);
     state.cart = [];
     saveCart();
     renderCart();
@@ -586,6 +598,55 @@ function closeCart() {
   dom.cartPanel.setAttribute('aria-hidden', 'true');
   dom.cartBackdrop.classList.remove('open');
   document.body.style.overflow = '';
+}
+
+/* ══════════════════════════════════════════════════════
+   LANGUAGE SWITCHER
+══════════════════════════════════════════════════════ */
+function updateStaticTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    // If it has children (like the location SVG), we only replace the text node
+    // or just assume we wrapped what we needed in a span.
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+}
+
+function initLanguageSwitch() {
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === currentLang);
+    btn.addEventListener('click', () => {
+      setLanguage(btn.dataset.lang);
+    });
+  });
+
+  window.addEventListener('languagechange', () => {
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === currentLang);
+    });
+    
+    // Dir and lang handle in i18n but re-applied here if needed
+    updateStaticTranslations();
+    
+    // Re-render dynamic components
+    dom.categoryTabsList.innerHTML = '';
+    dom.menuMain.innerHTML = '';
+    renderCategories();
+    renderDishes();
+    if (state.modalItem) {
+      openDishModal(state.modalItem);
+    }
+    renderCart();
+    filterDishes();
+    
+    // Keep active tab visible
+    const activeTab = document.querySelector('.cat-tab.active');
+    if (activeTab) setActiveTab(activeTab);
+  });
+  
+  updateStaticTranslations();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -680,6 +741,9 @@ function handleHashRouting() {
 document.addEventListener('DOMContentLoaded', () => {
   handleHashRouting();
 
+  /* Setup Language Switcher */
+  initLanguageSwitch();
+
   /* Build the menu from menu-data.js */
   renderCategories();
   renderDishes();
@@ -693,4 +757,16 @@ document.addEventListener('DOMContentLoaded', () => {
   initDishModal();
   initCart();
   initParticles();
+
+  /* Register Service Worker for PWA */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(registration => {
+          console.log('ServiceWorker registration successful with scope: ', registration.scope);
+        }, err => {
+          console.log('ServiceWorker registration failed: ', err);
+        });
+    });
+  }
 });

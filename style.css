@@ -468,7 +468,7 @@ ul { list-style: none; }
 
 .cart-badge {
   position: absolute;
-  top: 4px; right: 4px;
+  top: 4px; inset-inline-end: 4px;
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
@@ -511,7 +511,9 @@ ul { list-style: none; }
 
 .search-bar input {
   width: 100%;
-  padding: 10px 40px 10px 16px;
+  padding-block: 10px;
+  padding-inline-start: 16px;
+  padding-inline-end: 40px;
   border: 1.5px solid rgba(255,210,80,0.4);
   border-radius: var(--radius-btn);
   background: rgba(255, 248, 210, 0.15);
@@ -531,7 +533,7 @@ ul { list-style: none; }
 
 .search-clear {
   position: absolute;
-  right: 28px;
+  inset-inline-end: 28px;
   top: 50%;
   transform: translateY(-50%);
   color: rgba(255,220,150,0.7);
@@ -567,7 +569,7 @@ ul { list-style: none; }
   white-space: nowrap;
 }
 
-.section-title__icon { margin-right: 6px; font-size: 0.85em; }
+.section-title__icon { margin-inline-end: 6px; font-size: 0.85em; }
 
 .section-title__line {
   flex: 1;
@@ -736,7 +738,7 @@ ul { list-style: none; }
 /* Close button — floats in its own reserved top strip, never touches the image */
 .modal__close {
   position: absolute;
-  top: 12px; right: 14px;
+  top: 12px; inset-inline-end: 14px;
   width: 36px; height: 36px;
   border-radius: 50%;
   background: var(--clr-cream);
@@ -1263,4 +1265,42 @@ ul { list-style: none; }
 :focus-visible {
   outline: 2px solid var(--clr-gold-start);
   outline-offset: 2px;
+}
+
+/* ══════════════════════════════════════════════════════
+   LANGUAGE SWITCHER
+══════════════════════════════════════════════════════ */
+.hero__lang-switch {
+  position: absolute;
+  top: 24px;
+  inset-inline-end: 24px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lang-btn {
+  background: transparent;
+  border: 1.5px solid rgba(255, 220, 100, 0.35);
+  color: #FFF3CC;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: var(--ff-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.lang-btn:hover {
+  background: rgba(255, 245, 180, 0.18);
+  color: #fff;
+}
+
+.lang-btn.active {
+  background: var(--gold-gradient);
+  color: #2C1500;
+  border-color: transparent;
+  font-weight: 700;
 }
