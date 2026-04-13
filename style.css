@@ -551,6 +551,14 @@ ul { list-style: none; }
   padding: 40px 20px 80px;
 }
 
+body.menu-mode #hero {
+  display: none !important;
+}
+
+body.menu-mode .menu-main {
+  padding-top: 140px; /* لضمان عدم اختفاء المحتوى تحت قائمة البحث العلوية */
+}
+
 /* Section header */
 .menu-section { margin-bottom: 60px; }
 

@@ -255,6 +255,10 @@ function initHeroScroll() {
   window.addEventListener('scroll', () => {
     if (ticking) return;
     requestAnimationFrame(() => {
+      if (document.body.classList.contains('menu-mode')) {
+        ticking = false;
+        return;
+      }
       const scrollY = window.scrollY;
       const heroH   = dom.hero.offsetHeight;
 
@@ -713,24 +717,40 @@ function initParticles() {
    QR / HASH ROUTING
    example.com/#menu → skip hero, go straight to menu
 ══════════════════════════════════════════════════════ */
-function handleHashRouting() {
-  if (window.location.hash !== '#menu') return;
+function enterMenuMode() {
+  document.body.classList.add('menu-mode');
   dom.navbar.classList.add('visible');
-  setTimeout(() => {
-    dom.menuMain.scrollIntoView({ behavior: 'instant' });
-  }, 50);
+  window.scrollTo(0, 0);
+}
 
-  /* Restore hero content when user scrolls back to top */
-  const restoreHero = new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting) {
-      dom.heroContent.style.opacity   = '';
-      dom.heroContent.style.animation = '';
-    } else {
-      dom.heroContent.style.opacity   = '0';
-      dom.heroContent.style.animation = 'none';
-    }
-  }, { threshold: 0.1 });
-  restoreHero.observe(dom.hero);
+function exitMenuMode() {
+  document.body.classList.remove('menu-mode');
+  dom.navbar.classList.remove('visible');
+  window.scrollTo(0, 0);
+}
+
+function handleHashRouting() {
+  const cta = document.querySelector('.hero__cta');
+  if (cta) {
+    cta.addEventListener('click', e => {
+      e.preventDefault();
+      history.pushState(null, '', '#menu');
+      enterMenuMode();
+    });
+  }
+
+  const brand = document.querySelector('.navbar__brand');
+  if (brand) {
+    brand.addEventListener('click', e => {
+      e.preventDefault();
+      history.pushState(null, '', '#');
+      exitMenuMode();
+    });
+  }
+
+  if (window.location.hash === '#menu') {
+    enterMenuMode();
+  }
 }
 
 /* ══════════════════════════════════════════════════════
