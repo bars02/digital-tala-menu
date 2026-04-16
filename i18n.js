@@ -1,7 +1,7 @@
 const translations = {
   ar: {
     // General
-    "explore_menu": "طالع القائمة",
+    "explore_menu": "تصفح القائمة",
     "search_placeholder": "ابحث عن طبق...",
     "cart_title": "طلبك",
     "cart_empty": "سلتك فارغة",
@@ -13,8 +13,9 @@ const translations = {
     "order_received": "تم استلام طلبك! سنتواصل معك قريباً. 🎉",
     "added_to_cart": "تمت إضافته لطلبك",
     "currency": "د.ع",
-    "location": "الأنبار، الفلوجة — قرب الجسر المعلق",
-    "tagline": "حيث يحكي كل طبق قصة.",
+    "location": "الأنبار، الفلوجة —جسر الحديد القديم",
+    "tagline": "تالة و على نهر الفرات اطلالة ",
+    "excellence_title": "مجموعة التميز",
     "copy": "© 2026 مطعم وكافيه تالة. جميع الحقوق محفوظة."
   },
   en: {
@@ -33,6 +34,7 @@ const translations = {
     "currency": "IQD",
     "location": "Anbar, Fallujah — Near the Suspension Bridge",
     "tagline": "Where every meal tells a story.",
+    "excellence_title": "Excellence Collection",
     "copy": "© 2026 Tala Restaurant & Café. All rights reserved."
   },
   ku: {
@@ -51,6 +53,7 @@ const translations = {
     "currency": "د.ع",
     "location": "ئەنبار، فەلوجە — نزیک پردی هەڵواسراو",
     "tagline": "لەوێدا کە هەر ژەمێک چیرۆکێک دەگێڕێتەوە.",
+    "excellence_title": "کۆمەڵەی نایاب",
     "copy": "© 2026 چێشتخانە و کافێی تالا. هەموو مافەکان پارێزراون."
   }
 };

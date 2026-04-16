@@ -360,3 +360,15 @@ const dishes = [
     description_ku: 'چینە کریسپییەکانی هەویری فیلۆ کە پڕکراوە لە فستق و بە شرووبی ڤانێلای بۆنخۆش شیرین کراوە.',
   }
 ];
+
+/* ══════════════════════════════════════════════════════
+   EXCELLENCE CAROUSEL ITEMS
+   Special highlighted items for the top carousel.
+══════════════════════════════════════════════════════ */
+const excellenceItems = [
+  'g1', // Grilled Meat
+  'w1', // Wagyu Burger
+  'w2', // Grilled Salmon
+  'c5'  // Saffron Cappuccino
+];
+

@@ -60,6 +60,13 @@ const dom = {
   modalAddBtn:      document.getElementById('modal-add-btn'),
 
   toast:            document.getElementById('toast'),
+
+  /* Excellence Carousel */
+  excellenceSection: document.getElementById('excellence-section'),
+  carouselTrack:     document.getElementById('carousel-track'),
+  carouselPrev:      document.getElementById('carousel-prev'),
+  carouselNext:      document.getElementById('carousel-next'),
+  carouselDots:      document.getElementById('carousel-dots'),
 };
 
 /* ══════════════════════════════════════════════════════
@@ -222,6 +229,120 @@ function renderDishes() {
     catDishes.forEach(dish => fragment.appendChild(renderDishCard(dish)));
     grid.appendChild(fragment);
   });
+}
+
+/* ══════════════════════════════════════════════════════
+   RENDER — EXCELLENCE CAROUSEL
+   ══════════════════════════════════════════════════════ */
+function renderExcellenceCarousel() {
+  if (!window.excellenceItems || !excellenceItems.length) {
+    dom.excellenceSection.classList.remove('visible');
+    return;
+  }
+
+  dom.excellenceSection.classList.add('visible');
+  dom.carouselTrack.innerHTML = '';
+  dom.carouselDots.innerHTML = '';
+
+  excellenceItems.forEach((id, index) => {
+    const dish = getDishById(id);
+    if (!dish) return;
+
+    /* Create slide */
+    const slide = document.createElement('div');
+    slide.className = 'carousel-item';
+    slide.innerHTML = `
+      <img src="${dish.image}" alt="${dish.name}" loading="lazy" />
+      <div class="carousel-caption">
+        <h3 translate="no">${dish[getLangKey('name')] || dish.name}</h3>
+        <p>${dish[getLangKey('description')] || dish.description}</p>
+        <button class="modal__add-btn" style="width: auto; padding: 10px 25px;" data-id="${dish.id}">
+          ${t('add_to_cart')} — ${formatPrice(dish.price)}
+        </button>
+      </div>
+    `;
+
+    /* Slide click -> open modal (excluding add button) */
+    slide.addEventListener('click', (e) => {
+      if (!e.target.closest('button')) openDishModal(dish);
+    });
+
+    /* Add button click */
+    slide.querySelector('button').addEventListener('click', (e) => {
+      e.stopPropagation();
+      addToCart(dish, 1);
+      showToast(`${dish[getLangKey('name')] || dish.name} ${t('added_to_cart')}`);
+    });
+
+    dom.carouselTrack.appendChild(slide);
+
+    /* Create dot */
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (index === 0 ? ' active' : '');
+    dot.dataset.index = index;
+    dom.carouselDots.appendChild(dot);
+  });
+}
+
+let carouselIndex = 0;
+let carouselTimer = null;
+
+function updateCarousel() {
+  const slides = dom.carouselTrack.querySelectorAll('.carousel-item');
+  if (!slides.length) return;
+
+  if (carouselIndex >= slides.length) carouselIndex = 0;
+  if (carouselIndex < 0) carouselIndex = slides.length - 1;
+
+  const offset = -carouselIndex * 100;
+  dom.carouselTrack.style.transform = `translateX(${offset}%)`;
+
+  /* Update dots */
+  dom.carouselDots.querySelectorAll('.dot').forEach((dot, i) => {
+    dot.classList.toggle('active', i === carouselIndex);
+  });
+}
+
+function startCarouselTimer() {
+  stopCarouselTimer();
+  carouselTimer = setInterval(() => {
+    carouselIndex++;
+    updateCarousel();
+  }, 5000);
+}
+
+function stopCarouselTimer() {
+  if (carouselTimer) clearInterval(carouselTimer);
+}
+
+function initExcellenceCarousel() {
+  if (!dom.carouselTrack) return;
+
+  dom.carouselPrev.addEventListener('click', () => {
+    carouselIndex--;
+    updateCarousel();
+    startCarouselTimer();
+  });
+
+  dom.carouselNext.addEventListener('click', () => {
+    carouselIndex++;
+    updateCarousel();
+    startCarouselTimer();
+  });
+
+  dom.carouselDots.addEventListener('click', (e) => {
+    const dot = e.target.closest('.dot');
+    if (!dot) return;
+    carouselIndex = parseInt(dot.dataset.index);
+    updateCarousel();
+    startCarouselTimer();
+  });
+
+  /* Pause on hover */
+  dom.excellenceSection.addEventListener('mouseenter', stopCarouselTimer);
+  dom.excellenceSection.addEventListener('mouseleave', startCarouselTimer);
+
+  startCarouselTimer();
 }
 
 /* ══════════════════════════════════════════════════════
@@ -797,6 +918,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* Build the menu from menu-data.js */
   renderCategories();
   renderDishes();
+  renderExcellenceCarousel();
 
   /* Wire all interactions */
   initHeroScroll();
@@ -807,6 +929,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDishModal();
   initCart();
   initParticles();
+  initExcellenceCarousel();
 
   /* Handle routing/scrolling AFTER rendering is complete */
   handleHashRouting();
