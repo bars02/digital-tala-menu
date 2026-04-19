@@ -1,6 +1,6 @@
 {
-  "name": "Tala RS",
-  "short_name": "Tala",
+  "name": "Tala Restaurant Menu",
+  "short_name": "Tala Menu",
   "description": "Tala Restaurant & Café - A luxury dining experience.",
   "start_url": "./index.html",
   "display": "standalone",
