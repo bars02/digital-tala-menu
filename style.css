@@ -380,14 +380,14 @@ ul {
   transition: transform var(--transition-slow), opacity var(--transition-slow);
 
   /* ── Gold gradient base + two SVG wave layers ── */
-  background-color: #C9A040;
+  background-color: #f7cd6b;
   background-image:
     /* Wave 1 — light crest, slow */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='80'%3E%3Cpath d='M0 42 C100 16 200 68 300 42 C400 16 500 68 600 42 L600 80 L0 80 Z' fill='rgba(255%2C248%2C170%2C0.32)'/%3E%3C/svg%3E"),
     /* Wave 2 — dark trough, faster */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='80'%3E%3Cpath d='M0 52 C70 26 130 78 200 52 C270 26 330 78 400 52 L400 80 L0 80 Z' fill='rgba(110%2C60%2C0%2C0.22)'/%3E%3C/svg%3E"),
     /* Base gold gradient */
-    linear-gradient(#e2da7df3, #d9ce55df);
+    linear-gradient(#f6ea6bf3, #e2da7df3);
 
   background-size: 600px 80px, 400px 80px, 100% 100%;
   background-repeat: repeat-x, repeat-x, no-repeat;
