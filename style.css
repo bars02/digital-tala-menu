@@ -295,13 +295,7 @@ ul { list-style: none; }
     /* Wave 2 — dark trough, faster */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='80'%3E%3Cpath d='M0 52 C70 26 130 78 200 52 C270 26 330 78 400 52 L400 80 L0 80 Z' fill='rgba(110%2C60%2C0%2C0.22)'/%3E%3C/svg%3E"),
     /* Base gold gradient */
-    linear-gradient(160deg,
-      #9A6010 0%,
-      #D4A030 20%,
-      #F0CE5A 45%,
-      #E2B83A 65%,
-      #C08820 85%,
-      #9A6010 100%);
+    linear-gradient(#f9d96f, #f9d96f);
 
   background-size:   600px 80px, 400px 80px, 100% 100%;
   background-repeat: repeat-x,   repeat-x,   no-repeat;
@@ -364,7 +358,7 @@ ul { list-style: none; }
   font-family: var(--ff-serif);
   font-size: 1.5rem;
   font-weight: 700;
-  color: #BC6448;
+  color: #fb6305e2;
   letter-spacing: 0.12em;
   white-space: nowrap;
   text-decoration: none;

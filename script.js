@@ -436,10 +436,19 @@ function initCategoryTabs() {
     /* Active state will be handled by IntersectionObserver during scroll */
   });
 
-  /* ── IntersectionObserver: sync active tab on page scroll ── */
+  observeCategorySections();
+}
+
+let categoryScrollObserver = null;
+
+function observeCategorySections() {
+  if (categoryScrollObserver) {
+    categoryScrollObserver.disconnect();
+  }
+
   const sections = document.querySelectorAll('.menu-section');
-  /* rootMargin: top offset should roughly match navbar height to trigger cleanly */
-  const observer = new IntersectionObserver(entries => {
+  /* rootMargin adjusted and threshold: 0 to handle very tall sections properly */
+  categoryScrollObserver = new IntersectionObserver(entries => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
       const tab = dom.categoryTabsList.querySelector(
@@ -447,9 +456,9 @@ function initCategoryTabs() {
       );
       if (tab) setActiveTab(tab);
     });
-  }, { rootMargin: '-105px 0px -50% 0px', threshold: 0.1 });
+  }, { rootMargin: '-120px 0px -60% 0px', threshold: 0 });
 
-  sections.forEach(s => observer.observe(s));
+  sections.forEach(s => categoryScrollObserver.observe(s));
 
   /* Activate first tab on load if visible */
   requestAnimationFrame(() => {
@@ -790,6 +799,9 @@ function initLanguageSwitch() {
     // Keep active tab visible
     const activeTab = document.querySelector('.cat-tab.active');
     if (activeTab) setActiveTab(activeTab);
+
+    // Re-observe newly rendered sections to fix missing ray
+    observeCategorySections();
   });
   
   updateStaticTranslations();
