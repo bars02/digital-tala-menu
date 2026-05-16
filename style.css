@@ -387,7 +387,7 @@ ul {
     /* Wave 2 — dark trough, faster */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='80'%3E%3Cpath d='M0 52 C70 26 130 78 200 52 C270 26 330 78 400 52 L400 80 L0 80 Z' fill='rgba(110%2C60%2C0%2C0.22)'/%3E%3C/svg%3E"),
     /* Base gold gradient */
-    linear-gradient(#f0ebb29c, #e1df8cfa);
+    linear-gradient(#f3e876, #f4f282);
 
   background-size: 600px 80px, 400px 80px, 100% 100%;
   background-repeat: repeat-x, repeat-x, no-repeat;
