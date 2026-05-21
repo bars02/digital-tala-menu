@@ -16,7 +16,7 @@ const translations = {
     "location": "الأنبار، الفلوجة —جسر الحديد القديم",
     "tagline": "تالة و على نهر الفرات اطلالة ",
     "excellence_title": "مجموعة التميز",
-    "copy": "© 2026 مطعم وكافيه تالة. جميع الحقوق محفوظة."
+    "copy": "(balt_group)© 2026 مطعم وكافيه تالة. جميع الحقوق محفوظة."
   },
   en: {
     // General
@@ -35,7 +35,7 @@ const translations = {
     "location": "Anbar, Fallujah — Near the Suspension Bridge",
     "tagline": "Where every meal tells a story.",
     "excellence_title": "Excellence Collection",
-    "copy": "© 2026 Tala Restaurant & Café. All rights reserved."
+    "copy": "(balt_group)© 2026 Tala Restaurant & Café. All rights reserved."
   },
   ku: {
     // General
@@ -54,7 +54,7 @@ const translations = {
     "location": "ئەنبار، فەلوجە — نزیک پردی هەڵواسراو",
     "tagline": "لەوێدا کە هەر ژەمێک چیرۆکێک دەگێڕێتەوە.",
     "excellence_title": "کۆمەڵەی نایاب",
-    "copy": "© 2026 چێشتخانە و کافێی تالا. هەموو مافەکان پارێزراون."
+    "copy": "(balt_group)© 2026 چێشتخانە و کافێی تالا. هەموو مافەکان پارێزراون."
   }
 };
 

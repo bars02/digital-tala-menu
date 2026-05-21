@@ -186,10 +186,10 @@ function renderDishCard(dish) {
   card.innerHTML = `
     <div class="dish-card__img-wrap">
       <img
-        src="${dish.image}"
+        data-src="${dish.image}"
+        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
         alt="${dish.name}"
-        class="dish-card__img"
-        loading="lazy"
+        class="dish-card__img lazy-img"
       />
     </div>
     <div class="dish-card__body">
@@ -252,7 +252,7 @@ function renderExcellenceCarousel() {
     const slide = document.createElement('div');
     slide.className = 'carousel-item';
     slide.innerHTML = `
-      <img src="${dish.image}" alt="${dish.name}" loading="lazy" />
+      <img data-src="${dish.image}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="lazy-img" alt="${dish.name}" />
       <div class="carousel-caption">
         <h3 translate="no">${dish[getLangKey('name')] || dish.name}</h3>
         <p>${dish[getLangKey('description')] || dish.description}</p>
@@ -808,9 +808,32 @@ function initLanguageSwitch() {
 }
 
 /* ══════════════════════════════════════════════════════
+   LAZY IMAGES
+══════════════════════════════════════════════════════ */
+function initLazyImages() {
+  const lazyObserver = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        if (img.dataset.src) {
+          img.src = img.dataset.src;
+          img.removeAttribute('data-src');
+        }
+        observer.unobserve(img);
+      }
+    });
+  }, { rootMargin: '200px 0px' });
+
+  document.querySelectorAll('img.lazy-img').forEach(img => {
+    lazyObserver.observe(img);
+  });
+}
+
+/* ══════════════════════════════════════════════════════
    PARTICLES (HERO)
 ══════════════════════════════════════════════════════ */
 function initParticles() {
+  return; // Disabled for better performance
   const canvas = document.getElementById('particles-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
@@ -942,6 +965,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initCart();
   initParticles();
   initExcellenceCarousel();
+  initLazyImages();
 
   /* Handle routing/scrolling AFTER rendering is complete */
   handleHashRouting();
