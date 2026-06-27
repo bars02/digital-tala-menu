@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" translate="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="google" content="notranslate" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة تحكم منيو تالة | Tala Menu Dashboard</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Inter:wght@300;400;500;600;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Supabase JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Global Image Fallback Handler -->
+  <script>
+    window.handleImageError = function(img, type) {
+      if (type === 'logo') {
+        img.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23161411' stroke='%23C6A75E' stroke-width='3'/><text x='50%' y='58%' dominant-baseline='middle' text-anchor='middle' fill='%23C6A75E' font-family='serif' font-size='36'>T</text></svg>";
+      } else {
+        img.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><rect width='50' height='50' fill='%23221f1a'/><text x='25' y='30' fill='%23777' text-anchor='middle'>📷</text></svg>";
+      }
+      img.onerror = null; // Prevent infinite loop if fallback fails
+    };
+  </script>
+  
+  <style>
+    :root {
+      --clr-bg: #0d0c0a;
+      --clr-panel: #161411;
+      --clr-panel-light: #221f1a;
+      --clr-gold-start: #C6A75E;
+      --clr-gold-end: #E6C97A;
+      --clr-text: #f5f0e6;
+      --clr-text-muted: #a39885;
+      --clr-border: rgba(198, 167, 94, 0.25);
+      --clr-border-strong: rgba(198, 167, 94, 0.6);
+      --clr-danger: #ea5455;
+      --clr-success: #28c76f;
+      --clr-info: #00cfe8;
+      
+      --gold-gradient: linear-gradient(135deg, var(--clr-gold-start), var(--clr-gold-end));
+      --ff-sans: 'Inter', 'Cairo', system-ui, sans-serif;
+      --ff-serif: 'Playfair Display', Georgia, serif;
+      
+      --transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --radius-panel: 16px;
+      --radius-btn: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--ff-sans);
+      background-color: var(--clr-bg);
+      color: var(--clr-text);
+      line-height: 1.6;
+      padding-bottom: 60px;
+      direction: rtl;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--clr-bg);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--clr-gold-start);
+      border-radius: 3px;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--clr-border);
+      margin-bottom: 30px;
+    }
+
+    .header__title {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .header__logo {
+      height: 50px;
+      border-radius: 50%;
+      border: 1.5px solid var(--clr-gold-start);
+    }
+
+    .header__name h1 {
+      font-family: var(--ff-serif);
+      font-size: 1.8rem;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header__name p {
+      font-size: 0.85rem;
+      color: var(--clr-text-muted);
+      letter-spacing: 1px;
+    }
+
+    .header__actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* Connection Status */
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      background-color: rgba(234, 84, 85, 0.15);
+      color: var(--clr-danger);
+      border: 1px solid rgba(234, 84, 85, 0.3);
+    }
+
+    .status-badge.connected {
+      background-color: rgba(40, 199, 111, 0.15);
+      color: var(--clr-success);
+      border: 1px solid rgba(40, 199, 111, 0.3);
+    }
+
+    .status-badge__dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: var(--radius-btn);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid transparent;
+    }
+
+    .btn--primary {
+      background: var(--gold-gradient);
+      color: #000;
+      box-shadow: 0 4px 15px rgba(198, 167, 94, 0.3);
+    }
+
+    .btn--primary:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(198, 167, 94, 0.45);
+    }
+
+    .btn--secondary {
+      background-color: transparent;
+      color: var(--clr-gold-start);
+      border: 1px solid var(--clr-border);
+    }
+
+    .btn--secondary:hover {
+      background-color: rgba(198, 167, 94, 0.08);
+      border-color: var(--clr-gold-start);
+    }
+
+    .btn--danger {
+      background-color: rgba(234, 84, 85, 0.1);
+      color: var(--clr-danger);
+      border: 1px solid rgba(234, 84, 85, 0.3);
+    }
+
+    .btn--danger:hover {
+      background-color: var(--clr-danger);
+      color: #fff;
+    }
+
+    .btn--small {
+      padding: 5px 10px;
+      font-size: 0.8rem;
+      border-radius: 6px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background-color: var(--clr-panel);
+      border: 1px solid var(--clr-border);
+      border-radius: var(--radius-panel);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .stat-card__icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background-color: rgba(198, 167, 94, 0.1);
+      color: var(--clr-gold-start);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .stat-card__info h3 {
+      font-size: 0.85rem;
+      color: var(--clr-text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-card__info p {
+      font-size: 1.6rem;
+      font-weight: 700;
+      font-family: var(--ff-serif);
+      color: var(--clr-gold-start);
+    }
+
+    /* Setup Banner Alert */
+    .setup-banner {
+      background-color: rgba(198, 167, 94, 0.08);
+      border: 1px solid var(--clr-border-strong);
+      border-radius: var(--radius-panel);
+      padding: 20px;
+      margin-bottom: 35px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .setup-banner__content h3 {
+      color: var(--clr-gold-start);
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+    }
+
+    .setup-banner__content p {
+      font-size: 0.9rem;
+      color: var(--clr-text-muted);
+    }
+
+    .setup-banner__content p strong {
+      color: var(--clr-text);
+    }
+
+    /* Main Section / Tabs */
+    .main-section {
+      background-color: var(--clr-panel);
+      border: 1px solid var(--clr-border);
+      border-radius: var(--radius-panel);
+      padding: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .tabs-bar {
+      display: flex;
+      border-bottom: 1.5px solid var(--clr-panel-light);
+      margin-bottom: 24px;
+      gap: 15px;
+    }
+
+    .tab-btn {
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--clr-text-muted);
+      border-bottom: 3px solid transparent;
+      transition: var(--transition);
+    }
+
+    .tab-btn:hover {
+      color: var(--clr-text);
+    }
+
+    .tab-btn.active {
+      color: var(--clr-gold-start);
+      border-bottom-color: var(--clr-gold-start);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Controls Panel */
+    .controls-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 400px;
+      min-width: 250px;
+    }
+
+    .search-input-wrap input {
+      width: 100%;
+      background-color: var(--clr-panel-light);
+      border: 1px solid var(--clr-border);
+      color: var(--clr-text);
+      padding: 10px 16px;
+      padding-right: 40px;
+      border-radius: var(--radius-btn);
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: var(--transition);
+    }
+
+    .search-input-wrap input:focus {
+      outline: none;
+      border-color: var(--clr-gold-start);
+      box-shadow: 0 0 0 3px rgba(198, 167, 94, 0.15);
+    }
+
+    .search-input-wrap svg {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--clr-text-muted);
+      width: 18px;
+      height: 18px;
+    }
+
+    .filters-wrap {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .select-dropdown {
+      background-color: var(--clr-panel-light);
+      border: 1px solid var(--clr-border);
+      color: var(--clr-text);
+      padding: 10px 16px;
+      border-radius: var(--radius-btn);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .select-dropdown:focus {
+      border-color: var(--clr-gold-start);
+    }
+
+    /* Table Styles */
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--clr-panel-light);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: right;
+    }
+
+    th {
+      background-color: var(--clr-panel-light);
+      color: var(--clr-gold-start);
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 12px 16px;
+      border-bottom: 1.5px solid var(--clr-border);
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--clr-panel-light);
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background-color: rgba(198, 167, 94, 0.03);
+    }
+
+    .td-image {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: cover;
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--clr-border);
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .badge-featured {
+      background-color: rgba(198, 167, 94, 0.15);
+      color: var(--clr-gold-start);
+      border: 1px solid var(--clr-border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* Modals */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal__backdrop {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal__box {
+      position: relative;
+      background-color: var(--clr-panel);
+      border: 1px solid var(--clr-border-strong);
+      border-radius: var(--radius-panel);
+      width: 90%;
+      max-width: 700px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      z-index: 2;
+    }
+
+    .modal.active .modal__box {
+      transform: scale(1);
+    }
+
+    .modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1.5px solid var(--clr-panel-light);
+    }
+
+    .modal__header h2 {
+      font-family: var(--ff-serif);
+      color: var(--clr-gold-start);
+      font-size: 1.4rem;
+    }
+
+    .modal__close-btn {
+      color: var(--clr-text-muted);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .modal__close-btn:hover {
+      color: var(--clr-danger);
+    }
+
+    .modal__body {
+      padding: 24px;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-row--three {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--clr-text-muted);
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      background-color: var(--clr-panel-light);
+      border: 1px solid var(--clr-border);
+      color: var(--clr-text);
+      padding: 10px 14px;
+      border-radius: var(--radius-btn);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--clr-gold-start);
+      box-shadow: 0 0 0 3px rgba(198, 167, 94, 0.15);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Translation Helper UI */
+    .label-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .btn-translate {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--clr-gold-start);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--clr-border);
+      background-color: rgba(198, 167, 94, 0.05);
+      transition: var(--transition);
+    }
+
+    .btn-translate:hover:not(:disabled) {
+      background-color: rgba(198, 167, 94, 0.15);
+      border-color: var(--clr-gold-start);
+    }
+
+    .btn-translate:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Image Preview */
+    .image-upload-area {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .image-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      border: 1px solid var(--clr-border);
+      background-color: var(--clr-panel-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .image-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .image-upload-inputs {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    .file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      color: var(--clr-text);
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--clr-gold-start);
+    }
+
+    .modal__footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding-top: 15px;
+      border-top: 1px solid var(--clr-panel-light);
+      margin-top: 20px;
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      border: 3px solid rgba(198, 167, 94, 0.15);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border-left-color: var(--clr-gold-start);
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      background-color: #221f1a;
+      border: 1px solid var(--clr-border-strong);
+      color: var(--clr-text);
+      padding: 12px 24px;
+      border-radius: 8px;
+      z-index: 2000;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease;
+      direction: rtl;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast--success {
+      border-left: 4px solid var(--clr-success);
+    }
+
+    .toast--error {
+      border-left: 4px solid var(--clr-danger);
+    }
+
+    /* Empty state */
+    .empty-state {
+      padding: 40px;
+      text-align: center;
+      color: var(--clr-text-muted);
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 1.1rem;
+      color: var(--clr-text);
+      margin-bottom: 8px;
+    }
+
+    /* Arabic/English labels translation helper styling */
+    .lang-indicator {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background-color: var(--clr-panel-light);
+      margin-right: 5px;
+      color: var(--clr-gold-start);
+    }
+
+    /* ═══════════════════════════════════════════
+       LOGIN STYLES (Glassmorphism & Luxury)
+       ═══════════════════════════════════════════ */
+    .login-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+      background-color: var(--clr-bg);
+      background-image: radial-gradient(circle at top right, rgba(198, 167, 94, 0.08), transparent 450px),
+                        radial-gradient(circle at bottom left, rgba(198, 167, 94, 0.03), transparent 400px);
+    }
+
+    .login-card {
+      background-color: var(--clr-panel);
+      border: 1px solid var(--clr-border-strong);
+      border-radius: var(--radius-panel);
+      width: 100%;
+      max-width: 420px;
+      padding: 40px 30px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(198, 167, 94, 0.1);
+      backdrop-filter: blur(10px);
+      transform: translateY(0);
+      animation: loginFadeIn 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    @keyframes loginFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-card__header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .login-card__logo {
+      height: 70px;
+      width: 70px;
+      border-radius: 50%;
+      border: 2px solid var(--clr-gold-start);
+      margin-bottom: 15px;
+      box-shadow: 0 0 15px rgba(198, 167, 94, 0.2);
+    }
+
+    .login-card__header h2 {
+      font-family: var(--ff-serif);
+      font-size: 1.6rem;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .login-card__header p {
+      font-size: 0.85rem;
+      color: var(--clr-text-muted);
+    }
+
+    .login-form .form-group {
+      margin-bottom: 22px;
+    }
+
+    .login-form label {
+      margin-bottom: 8px;
+      color: var(--clr-text-muted);
+      font-size: 0.85rem;
+    }
+
+    .login-form input[type="email"],
+    .login-form input[type="password"] {
+      width: 100%;
+      background-color: var(--clr-panel-light);
+      border: 1px solid var(--clr-border);
+      color: var(--clr-text);
+      padding: 12px 16px;
+      border-radius: var(--radius-btn);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .login-form input[type="email"]:focus,
+    .login-form input[type="password"]:focus {
+      border-color: var(--clr-gold-start);
+      box-shadow: 0 0 0 3px rgba(198, 167, 94, 0.15);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .login-error {
+      background-color: rgba(234, 84, 85, 0.1);
+      border: 1px solid rgba(234, 84, 85, 0.3);
+      color: var(--clr-danger);
+      padding: 10px 14px;
+      border-radius: var(--radius-btn);
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      text-align: center;
+      animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .login-link {
+      color: var(--clr-gold-start);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: var(--transition);
+      display: inline-block;
+    }
+
+    .login-link:hover {
+      color: var(--clr-gold-end);
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       LOGIN PANEL
+  ═══════════════════════════════════════════ -->
+  <div id="login-container" class="login-wrapper">
+    <div class="login-card">
+      <div class="login-card__header">
+        <img src="images/logo.png" alt="Tala Logo" class="login-card__logo" onerror="handleImageError(this, 'logo')" />
+        <h2 id="login-card-title">تسجيل الدخول لوحة تحكم تالة</h2>
+        <p id="login-card-subtitle">الرجاء إدخال البريد الإلكتروني وكلمة المرور للمتابعة</p>
+      </div>
+
+      <!-- ── Login Form ── -->
+      <form id="login-form" class="login-form">
+        <div class="form-group">
+          <label for="login-email">البريد الإلكتروني</label>
+          <input type="email" id="login-email" placeholder="example@domain.com" dir="ltr" required />
+        </div>
+        <div class="form-group">
+          <label for="login-password">كلمة المرور</label>
+          <input type="password" id="login-password" placeholder="••••••••" dir="ltr" required />
+        </div>
+        <div id="login-error" class="login-error" style="display: none;"></div>
+        <button type="submit" class="btn btn--primary login-btn" id="login-submit-btn">
+          <span>دخول</span>
+        </button>
+        <div style="text-align: right; margin-top: 15px;">
+          <a href="#" id="link-forgot-password" class="login-link">نسيت كلمة المرور؟</a>
+        </div>
+      </form>
+
+      <!-- ── Forgot Password Request Form ── -->
+      <form id="forgot-form" class="login-form" style="display: none;">
+        <div class="form-group">
+          <label for="forgot-email">البريد الإلكتروني للإدارة</label>
+          <input type="email" id="forgot-email" placeholder="example@domain.com" dir="ltr" required />
+        </div>
+        <div id="forgot-error" class="login-error" style="display: none;"></div>
+        <button type="submit" class="btn btn--primary login-btn" id="forgot-submit-btn">
+          إرسال رابط إعادة التعيين
+        </button>
+        <div style="text-align: center; margin-top: 15px;">
+          <a href="#" id="link-back-to-login" class="login-link">العودة لتسجيل الدخول</a>
+        </div>
+      </form>
+
+      <!-- ── OTP Verification Form ── -->
+      <form id="otp-verify-form" class="login-form" style="display: none;">
+        <div class="form-group">
+          <label for="otp-code">رمز التحقق (OTP) المكون من 6 أرقام</label>
+          <input type="text" id="otp-code" placeholder="123456" pattern="\d{6}" maxlength="6" dir="ltr" required style="text-align: center; letter-spacing: 5px; font-size: 1.2rem;" />
+        </div>
+        <div id="otp-error" class="login-error" style="display: none;"></div>
+        <button type="submit" class="btn btn--primary login-btn" id="otp-submit-btn">
+          <span>تحقق من الرمز</span>
+        </button>
+        <div style="text-align: center; margin-top: 15px;">
+          <a href="#" id="link-otp-back-to-login" class="login-link">العودة لتسجيل الدخول</a>
+        </div>
+      </form>
+
+      <!-- ── New Password Form ── -->
+      <form id="new-password-form" class="login-form" style="display: none;">
+        <div class="form-group">
+          <label for="new-password">كلمة المرور الجديدة (6 أرقام/أحرف على الأقل)</label>
+          <input type="password" id="new-password" placeholder="••••••••" minlength="6" dir="ltr" required />
+        </div>
+        <div class="form-group">
+          <label for="confirm-new-password">تأكيد كلمة المرور الجديدة</label>
+          <input type="password" id="confirm-new-password" placeholder="••••••••" minlength="6" dir="ltr" required />
+        </div>
+        <div id="new-password-error" class="login-error" style="display: none;"></div>
+        <button type="submit" class="btn btn--primary login-btn" id="new-password-submit-btn">
+          <span>حفظ وتغيير كلمة المرور</span>
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <div class="container" id="dashboard-container" style="display: none;">
+    
+    <!-- ═══════════════════════════════════════════
+         HEADER
+    ═══════════════════════════════════════════ -->
+    <header class="header">
+      <div class="header__title">
+        <img src="images/logo.png" alt="Tala Logo" class="header__logo" onerror="handleImageError(this, 'logo')" />
+        <div class="header__name">
+          <h1>لوحة تحكم منيو تالة</h1>
+          <p>TALA RESTAURANT & CAFÉ ADMIN</p>
+        </div>
+      </div>
+      <div class="header__actions">
+        <div id="connection-badge" class="status-badge">
+          <span class="status-badge__dot"></span>
+          <span id="connection-status-text">غير متصل بقاعدة البيانات</span>
+        </div>
+        <a href="index.html" class="btn btn--secondary">عرض المنيو</a>
+        <button id="btn-logout" class="btn btn--danger" style="display: none;">تسجيل الخروج</button>
+      </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════
+         STATS GRID
+    ═══════════════════════════════════════════ -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card__icon">🍔</div>
+        <div class="stat-card__info">
+          <h3>إجمالي الأطباق</h3>
+          <p id="stat-dishes-count">-</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon">📂</div>
+        <div class="stat-card__info">
+          <h3>إجمالي الأقسام</h3>
+          <p id="stat-categories-count">-</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__icon">✨</div>
+        <div class="stat-card__info">
+          <h3>أطباق التميز</h3>
+          <p id="stat-featured-count">-</p>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ═══════════════════════════════════════════
+         MAIN SECTION
+    ═══════════════════════════════════════════ -->
+    <main class="main-section">
+      
+      <!-- Navigation Tabs -->
+      <div class="tabs-bar">
+        <button class="tab-btn active" data-target="tab-dishes">الأطباق (Dishes)</button>
+        <button class="tab-btn" data-target="tab-categories">الأقسام (Categories)</button>
+        <button class="tab-btn" data-target="tab-excellence">قسم التميز (Excellence)</button>
+      </div>
+
+      <!-- DISHES TAB -->
+      <section id="tab-dishes" class="tab-content active">
+        
+        <div class="controls-panel">
+          <div class="search-input-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="dish-search" placeholder="البحث في الأطباق بالاسم (عربي/إنجليزي/كردي)..." />
+          </div>
+          <div class="filters-wrap">
+            <select id="dish-category-filter" class="select-dropdown">
+              <option value="all">كل الأقسام</option>
+            </select>
+            <button id="add-dish-btn" class="btn btn--primary" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              إضافة طبق جديد
+            </button>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table id="dishes-table">
+            <thead>
+              <tr>
+                <th width="80" class="text-center">الصورة</th>
+                <th>اسم الطبق (عربي)</th>
+                <th>القسم</th>
+                <th>السعر</th>
+                <th width="100" class="text-center">مميز؟</th>
+                <th width="150" class="text-center">الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="dishes-tbody">
+              <tr>
+                <td colspan="6" class="empty-state">
+                  <div class="spinner"></div> جاري تحميل البيانات...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+
+      <!-- CATEGORIES TAB -->
+      <section id="tab-categories" class="tab-content">
+        
+        <div class="controls-panel">
+          <div style="flex: 1;"></div>
+          <button id="add-category-btn" class="btn btn--primary" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            إضافة قسم جديد
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table id="categories-table">
+            <thead>
+              <tr>
+                <th width="80" class="text-center">الأيقونة</th>
+                <th>معرّف القسم (ID)</th>
+                <th>القسم (عربي)</th>
+                <th>القسم (English)</th>
+                <th>القسم (کوردی)</th>
+                <th width="100" class="text-center">الترتيب</th>
+                <th width="150" class="text-center">الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="categories-tbody">
+              <tr>
+                <td colspan="7" class="empty-state">
+                  <div class="spinner"></div> جاري تحميل البيانات...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+      <!-- EXCELLENCE TAB -->
+      <section id="tab-excellence" class="tab-content">
+        
+        <div class="controls-panel">
+          <div style="flex: 1;"></div>
+          <button id="add-excellence-btn" class="btn btn--primary" disabled>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            إضافة طبق تميز جديد
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table id="excellence-table">
+            <thead>
+              <tr>
+                <th width="80" class="text-center">الصورة</th>
+                <th>اسم الطبق (عربي)</th>
+                <th>السعر</th>
+                <th width="150" class="text-center">الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="excellence-tbody">
+              <tr>
+                <td colspan="4" class="empty-state">
+                  <div class="spinner"></div> جاري تحميل البيانات...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       EXCELLENCE ITEM ADD/EDIT MODAL
+  ═══════════════════════════════════════════ -->
+  <div id="excellence-modal" class="modal">
+    <div class="modal__backdrop"></div>
+    <div class="modal__box">
+      <div class="modal__header">
+        <h2 id="excellence-modal-title">إضافة طبق تميز جديد</h2>
+        <span class="modal__close-btn" id="excellence-modal-close">&times;</span>
+      </div>
+      <div class="modal__body">
+        <form id="excellence-form">
+          <input type="hidden" id="excellence-id" />
+
+          <!-- Import from existing dish -->
+          <div class="form-group" style="background-color: rgba(255, 215, 0, 0.05); padding: 15px; border-radius: 8px; border: 1px dashed var(--clr-gold-start); margin-bottom: 20px;">
+            <label for="excellence-import-dish" style="color: var(--clr-gold-start);">استيراد من طبق موجود (اختياري)</label>
+            <select id="excellence-import-dish">
+              <option value="">-- اختر طبقاً لنسخ بياناته --</option>
+            </select>
+            <small style="color: var(--clr-text-muted); display: block; margin-top: 5px;">عند اختيار طبق، سيتم نسخ بياناته (الصورة، السعر، الاسم، الوصف) لتعديلها كطبق تميز مستقل.</small>
+          </div>
+          
+          <!-- Image upload area -->
+          <div class="form-group">
+            <label>صورة الطبق المميز</label>
+            <div class="image-upload-area">
+              <div class="image-preview" id="excellence-image-preview">
+                <span style="color: var(--clr-text-muted); font-size: 1.5rem;">📷</span>
+              </div>
+              <div class="image-upload-inputs">
+                <input type="text" id="excellence-image-url" placeholder="رابط الصورة (URL)..." dir="ltr" />
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div class="file-input-wrapper btn btn--secondary btn--small">
+                    <span>رفع صورة من الجهاز...</span>
+                    <input type="file" id="excellence-image-file" accept="image/*" />
+                  </div>
+                  <span id="excellence-file-status" style="font-size: 0.8rem; color: var(--clr-text-muted);"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div class="form-group">
+            <label for="excellence-price">السعر (د.ع IQD)</label>
+            <input type="number" id="excellence-price" min="0" required />
+          </div>
+
+          <!-- Trilingual Names -->
+          <div class="form-group" style="border: 1px solid var(--clr-border); padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.01);">
+            <div class="label-header">
+              <label style="color: var(--clr-gold-start);">اسم الطبق باللغات الثلاث</label>
+              <button type="button" class="btn-translate" id="btn-translate-excellence-names">
+                ✨ ترجمة فورية من العربية
+              </button>
+            </div>
+            <div class="form-row--three">
+              <div>
+                <label for="excellence-name-ar"><span class="lang-indicator">AR</span> الاسم بالعربية</label>
+                <input type="text" id="excellence-name-ar" required />
+              </div>
+              <div>
+                <label for="excellence-name-en"><span class="lang-indicator">EN</span> الاسم بالإنجليزية</label>
+                <input type="text" id="excellence-name-en" dir="ltr" />
+              </div>
+              <div>
+                <label for="excellence-name-ku"><span class="lang-indicator">KU</span> الاسم بالكردية (سوراني)</label>
+                <input type="text" id="excellence-name-ku" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Trilingual Descriptions -->
+          <div class="form-group" style="border: 1px solid var(--clr-border); padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.01); margin-top: 15px;">
+            <div class="label-header">
+              <label style="color: var(--clr-gold-start);">وصف الطبق باللغات الثلاث</label>
+              <button type="button" class="btn-translate" id="btn-translate-excellence-descs">
+                ✨ ترجمة فورية من العربية
+              </button>
+            </div>
+            <div class="form-group">
+              <label for="excellence-desc-ar"><span class="lang-indicator">AR</span> الوصف بالعربية</label>
+              <textarea id="excellence-desc-ar"></textarea>
+            </div>
+            <div class="form-row">
+              <div>
+                <label for="excellence-desc-en"><span class="lang-indicator">EN</span> الوصف بالإنجليزية</label>
+                <textarea id="excellence-desc-en" dir="ltr"></textarea>
+              </div>
+              <div>
+                <label for="excellence-desc-ku"><span class="lang-indicator">KU</span> الوصف بالكردية (سوراني)</label>
+                <textarea id="excellence-desc-ku"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal__footer">
+            <button type="button" class="btn btn--secondary" id="excellence-modal-cancel">إلغاء</button>
+            <button type="submit" class="btn btn--primary" id="excellence-submit-btn">حفظ طبق التميز</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       DISH ADD/EDIT MODAL
+  ═══════════════════════════════════════════ -->
+  <div id="dish-modal" class="modal">
+    <div class="modal__backdrop"></div>
+    <div class="modal__box">
+      <div class="modal__header">
+        <h2 id="dish-modal-title">إضافة طبق جديد</h2>
+        <span class="modal__close-btn" id="dish-modal-close">&times;</span>
+      </div>
+      <div class="modal__body">
+        <form id="dish-form">
+          <input type="hidden" id="dish-id" />
+          
+          <!-- Image upload area -->
+          <div class="form-group">
+            <label>صورة المنتج</label>
+            <div class="image-upload-area">
+              <div class="image-preview" id="dish-image-preview">
+                <span style="color: var(--clr-text-muted); font-size: 1.5rem;">📷</span>
+              </div>
+              <div class="image-upload-inputs">
+                <input type="text" id="dish-image-url" placeholder="رابط الصورة (URL)..." dir="ltr" />
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <div class="file-input-wrapper btn btn--secondary btn--small">
+                    <span>رفع صورة من الجهاز...</span>
+                    <input type="file" id="dish-image-file" accept="image/*" />
+                  </div>
+                  <span id="file-upload-status" style="font-size: 0.8rem; color: var(--clr-text-muted);"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Basic Row: Category & Price -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dish-category">قسم الطبق</label>
+              <select id="dish-category" required></select>
+            </div>
+            <div class="form-group">
+              <label for="dish-price">السعر (د.ع IQD)</label>
+              <input type="number" id="dish-price" min="0" required />
+            </div>
+          </div>
+
+          <!-- Trilingual Names -->
+          <div class="form-group" style="border: 1px solid var(--clr-border); padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.01);">
+            <div class="label-header">
+              <label style="color: var(--clr-gold-start);">اسم الطبق باللغات الثلاث</label>
+              <button type="button" class="btn-translate" id="btn-translate-names">
+                ✨ ترجمة فورية من العربية
+              </button>
+            </div>
+            <div class="form-row--three">
+              <div>
+                <label for="dish-name-ar"><span class="lang-indicator">AR</span> الاسم بالعربية</label>
+                <input type="text" id="dish-name-ar" required />
+              </div>
+              <div>
+                <label for="dish-name-en"><span class="lang-indicator">EN</span> الاسم بالإنجليزية</label>
+                <input type="text" id="dish-name-en" dir="ltr" />
+              </div>
+              <div>
+                <label for="dish-name-ku"><span class="lang-indicator">KU</span> الاسم بالكردية (سوراني)</label>
+                <input type="text" id="dish-name-ku" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Trilingual Descriptions -->
+          <div class="form-group" style="border: 1px solid var(--clr-border); padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.01); margin-top: 15px;">
+            <div class="label-header">
+              <label style="color: var(--clr-gold-start);">وصف الطبق باللغات الثلاث</label>
+              <button type="button" class="btn-translate" id="btn-translate-descs">
+                ✨ ترجمة فورية من العربية
+              </button>
+            </div>
+            <div class="form-group">
+              <label for="dish-desc-ar"><span class="lang-indicator">AR</span> الوصف بالعربية</label>
+              <textarea id="dish-desc-ar"></textarea>
+            </div>
+            <div class="form-row">
+              <div>
+                <label for="dish-desc-en"><span class="lang-indicator">EN</span> الوصف بالإنجليزية</label>
+                <textarea id="dish-desc-en" dir="ltr"></textarea>
+              </div>
+              <div>
+                <label for="dish-desc-ku"><span class="lang-indicator">KU</span> الوصف بالكردية (سوراني)</label>
+                <textarea id="dish-desc-ku"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal__footer">
+            <button type="button" class="btn btn--secondary" id="dish-modal-cancel">إلغاء</button>
+            <button type="submit" class="btn btn--primary" id="dish-submit-btn">حفظ الطبق</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       CATEGORY ADD/EDIT MODAL
+  ═══════════════════════════════════════════ -->
+  <div id="category-modal" class="modal">
+    <div class="modal__backdrop"></div>
+    <div class="modal__box">
+      <div class="modal__header">
+        <h2 id="category-modal-title">إضافة قسم جديد</h2>
+        <span class="modal__close-btn" id="category-modal-close">&times;</span>
+      </div>
+      <div class="modal__body">
+        <form id="category-form">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cat-id-input">معرّف القسم (ID slug)</label>
+              <input type="text" id="cat-id-input" placeholder="مثال: grills, pizza" dir="ltr" required />
+            </div>
+            <div class="form-group">
+              <label for="cat-icon-input">أيقونة القسم (رموز إيموجي 🍳🍟🥗)</label>
+              <input type="text" id="cat-icon-input" placeholder="مثال: 🍟" required />
+            </div>
+          </div>
+
+          <!-- Trilingual Titles -->
+          <div class="form-group" style="border: 1px solid var(--clr-border); padding: 15px; border-radius: 8px; background-color: rgba(255,255,255,0.01);">
+            <div class="label-header">
+              <label style="color: var(--clr-gold-start);">اسم القسم باللغات الثلاث</label>
+              <button type="button" class="btn-translate" id="btn-translate-cats">
+                ✨ ترجمة فورية من العربية
+              </button>
+            </div>
+            <div class="form-row--three">
+              <div>
+                <label for="cat-title-ar"><span class="lang-indicator">AR</span> الاسم بالعربية</label>
+                <input type="text" id="cat-title-ar" required />
+              </div>
+              <div>
+                <label for="cat-title-en"><span class="lang-indicator">EN</span> الاسم بالإنجليزية</label>
+                <input type="text" id="cat-title-en" dir="ltr" />
+              </div>
+              <div>
+                <label for="cat-title-ku"><span class="lang-indicator">KU</span> الاسم بالكردية (سوراني)</label>
+                <input type="text" id="cat-title-ku" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="cat-order-input">الترتيب في القائمة</label>
+            <input type="number" id="cat-order-input" min="0" value="0" />
+          </div>
+
+          <div class="modal__footer">
+            <button type="button" class="btn btn--secondary" id="category-modal-cancel">إلغاء</button>
+            <button type="submit" class="btn btn--primary" id="category-submit-btn">حفظ القسم</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       TOAST NOTIFICATIONS
+  ═══════════════════════════════════════════ -->
+  <div id="toast" class="toast toast--success">
+    <span id="toast-text"></span>
+  </div>
+
+  <!-- Load Config -->
+  <script src="supabase-config.js"></script>
+  <!-- Load Dashboard Logic -->
+  <script src="dashboard.js"></script>
+
+</body>
+</html>
