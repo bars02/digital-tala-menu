@@ -1,11 +1,11 @@
-const CACHE_NAME = 'tala-pwa-cache-v4';
+const CACHE_NAME = 'tala-pwa-cache-v6';
 const urlsToCache = [
   './',
   './index.html',
   './style.css',
   './script.js',
   './i18n.js',
-  './menu-data.js',
+  './supabase-config.js',
   './manifest.json',
   './images/logo.png',
   './images/hero-bg.png',

@@ -12,7 +12,8 @@
  * Adding new content = editing menu-data.js only. No HTML changes needed.
  */
 
-'use strict';
+let categories = [];
+let dishes = [];
 
 /* ══════════════════════════════════════════════════════
    STATE
@@ -61,12 +62,15 @@ const dom = {
 
   toast:            document.getElementById('toast'),
 
-  /* Excellence Carousel */
-  excellenceSection: document.getElementById('excellence-section'),
-  carouselTrack:     document.getElementById('carousel-track'),
-  carouselPrev:      document.getElementById('carousel-prev'),
-  carouselNext:      document.getElementById('carousel-next'),
-  carouselDots:      document.getElementById('carousel-dots'),
+  /* Promo Modal */
+  promoModal:       document.getElementById('promo-modal'),
+  promoClose:       document.getElementById('promo-close'),
+  promoBackdrop:    document.getElementById('promo-backdrop'),
+  promoImg:         document.getElementById('promo-img'),
+  promoTitle:       document.getElementById('promo-title'),
+  promoPrice:       document.getElementById('promo-price'),
+  promoDesc:        document.getElementById('promo-desc'),
+  promoAddBtn:      document.getElementById('promo-add-btn'),
 };
 
 /* ══════════════════════════════════════════════════════
@@ -232,117 +236,98 @@ function renderDishes() {
 }
 
 /* ══════════════════════════════════════════════════════
-   RENDER — EXCELLENCE CAROUSEL
-   ══════════════════════════════════════════════════════ */
-function renderExcellenceCarousel() {
-  if (!window.excellenceItems || !excellenceItems.length) {
-    dom.excellenceSection.classList.remove('visible');
+   PROMO FEATURED DISH MODAL (POP-UP)
+══════════════════════════════════════════════════════ */
+let promoDish = null;
+
+async function showPromoFeaturedModal() {
+  // Load from excellence_items table
+  try {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('excellence_items')
+      .select('*')
+      .limit(1);
+
+    if (error || !data || data.length === 0) return;
+    promoDish = data[0];
+  } catch (e) {
+    // If no excellence_items table yet, silently skip
     return;
   }
 
-  dom.excellenceSection.classList.add('visible');
-  dom.carouselTrack.innerHTML = '';
-  dom.carouselDots.innerHTML = '';
+  // Populate elements
+  dom.promoImg.src = promoDish.image || 'images/default-dish.jpg';
+  dom.promoImg.alt = promoDish[getLangKey('name')] || promoDish.name;
+  dom.promoTitle.textContent = promoDish[getLangKey('name')] || promoDish.name;
+  dom.promoPrice.textContent = formatPrice(promoDish.price);
+  dom.promoDesc.textContent = promoDish[getLangKey('description')] || promoDish.description || '';
 
-  excellenceItems.forEach((id, index) => {
-    const dish = getDishById(id);
-    if (!dish) return;
+  // Show modal
+  openPromoModal();
+}
 
-    /* Create slide */
-    const slide = document.createElement('div');
-    slide.className = 'carousel-item';
-    slide.innerHTML = `
-      <img data-src="${dish.image}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="lazy-img" alt="${dish.name}" />
-      <div class="carousel-caption">
-        <h3 translate="no">${dish[getLangKey('name')] || dish.name}</h3>
-        <p>${dish[getLangKey('description')] || dish.description}</p>
-        <button class="modal__add-btn" style="width: auto; padding: 10px 25px;" data-id="${dish.id}">
-          ${t('add_to_cart')} — ${formatPrice(dish.price)}
-        </button>
-      </div>
-    `;
+function openPromoModal() {
+  if (!dom.promoModal) return;
+  dom.promoModal.classList.add('open');
+  dom.promoModal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+  trapFocus(dom.promoModal);
+}
 
-    /* Slide click -> open modal (excluding add button) */
-    slide.addEventListener('click', (e) => {
-      if (!e.target.closest('button')) openDishModal(dish);
+function closePromoModal() {
+  if (!dom.promoModal) return;
+  dom.promoModal.classList.remove('open');
+  dom.promoModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+  if (document.activeElement && dom.promoModal.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
+  releaseFocus(dom.promoModal);
+}
+
+function initPromoModal() {
+  if (!dom.promoModal) return;
+
+  // Close actions
+  dom.promoClose.addEventListener('click', closePromoModal);
+  dom.promoBackdrop.addEventListener('click', closePromoModal);
+
+  // Add to cart action
+  dom.promoAddBtn.addEventListener('click', () => {
+    if (promoDish) {
+      addToCart(promoDish, 1);
+      showToast(`${promoDish[getLangKey('name')] || promoDish.name} ${t('added_to_cart')}`);
+      closePromoModal();
+    }
+  });
+  let promoShown = false;
+
+  // Listen to CTA Browse Menu click to show promo modal
+  const ctaBtn = document.querySelector('.hero__cta');
+  if (ctaBtn) {
+    ctaBtn.addEventListener('click', () => {
+      if (promoShown) return;
+      promoShown = true;
+      // Trigger opening when navigating to menu
+      setTimeout(showPromoFeaturedModal, 300);
     });
+  }
 
-    /* Add button click */
-    slide.querySelector('button').addEventListener('click', (e) => {
-      e.stopPropagation();
-      addToCart(dish, 1);
-      showToast(`${dish[getLangKey('name')] || dish.name} ${t('added_to_cart')}`);
-    });
-
-    dom.carouselTrack.appendChild(slide);
-
-    /* Create dot */
-    const dot = document.createElement('div');
-    dot.className = 'dot' + (index === 0 ? ' active' : '');
-    dot.dataset.index = index;
-    dom.carouselDots.appendChild(dot);
-  });
-}
-
-let carouselIndex = 0;
-let carouselTimer = null;
-
-function updateCarousel() {
-  const slides = dom.carouselTrack.querySelectorAll('.carousel-item');
-  if (!slides.length) return;
-
-  if (carouselIndex >= slides.length) carouselIndex = 0;
-  if (carouselIndex < 0) carouselIndex = slides.length - 1;
-
-  const offset = -carouselIndex * 100;
-  dom.carouselTrack.style.transform = `translateX(${offset}%)`;
-
-  /* Update dots */
-  dom.carouselDots.querySelectorAll('.dot').forEach((dot, i) => {
-    dot.classList.toggle('active', i === carouselIndex);
-  });
-}
-
-function startCarouselTimer() {
-  stopCarouselTimer();
-  carouselTimer = setInterval(() => {
-    carouselIndex++;
-    updateCarousel();
-  }, 5000);
-}
-
-function stopCarouselTimer() {
-  if (carouselTimer) clearInterval(carouselTimer);
-}
-
-function initExcellenceCarousel() {
-  if (!dom.carouselTrack) return;
-
-  dom.carouselPrev.addEventListener('click', () => {
-    carouselIndex--;
-    updateCarousel();
-    startCarouselTimer();
-  });
-
-  dom.carouselNext.addEventListener('click', () => {
-    carouselIndex++;
-    updateCarousel();
-    startCarouselTimer();
-  });
-
-  dom.carouselDots.addEventListener('click', (e) => {
-    const dot = e.target.closest('.dot');
-    if (!dot) return;
-    carouselIndex = parseInt(dot.dataset.index);
-    updateCarousel();
-    startCarouselTimer();
-  });
-
-  /* Pause on hover */
-  dom.excellenceSection.addEventListener('mouseenter', stopCarouselTimer);
-  dom.excellenceSection.addEventListener('mouseleave', startCarouselTimer);
-
-  startCarouselTimer();
+  // Also open if user scrolls manually past hero (only once)
+  const onScroll = () => {
+    if (promoShown) {
+      window.removeEventListener('scroll', onScroll);
+      return;
+    }
+    const heroHeight = dom.hero ? dom.hero.offsetHeight : 500;
+    if (window.scrollY > heroHeight - 100) {
+      promoShown = true;
+      window.removeEventListener('scroll', onScroll);
+      setTimeout(showPromoFeaturedModal, 400);
+    }
+  };
+  window.addEventListener('scroll', onScroll);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -946,29 +931,112 @@ function handleHashRouting() {
    2. renderDishes()     — fills the nodes
    3. All init*()        — wire up events on existing nodes
 ══════════════════════════════════════════════════════ */
+/**
+ * Helper to get or create a single Supabase client instance
+ */
+let sharedSupabaseClient = null;
+function getSupabaseClient() {
+  if (sharedSupabaseClient) return sharedSupabaseClient;
+  
+  let url = (typeof supabaseConfig !== 'undefined') ? supabaseConfig.url : '';
+  let anonKey = (typeof supabaseConfig !== 'undefined') ? supabaseConfig.anonKey : '';
+
+  if (!url || !anonKey) {
+    url = localStorage.getItem('tala_supabase_url') || '';
+    anonKey = localStorage.getItem('tala_supabase_anon_key') || '';
+  }
+
+  if (!url || !anonKey) {
+    throw new Error('Supabase configuration credentials are missing.');
+  }
+
+  sharedSupabaseClient = window.supabase.createClient(url, anonKey);
+  return sharedSupabaseClient;
+}
+
+/**
+ * Loads the menu from Supabase if credentials are provided.
+ */
+async function loadMenuFromSupabase() {
+  const supabaseClient = getSupabaseClient();
+
+
+  // Fetch categories ordered by sort_order
+  const { data: catData, error: catError } = await supabaseClient
+    .from('categories')
+    .select('*')
+    .order('sort_order', { ascending: true });
+
+  if (catError) throw catError;
+
+  // Fetch dishes
+  const { data: dishData, error: dishError } = await supabaseClient
+    .from('dishes')
+    .select('*');
+
+  if (dishError) throw dishError;
+
+  if (catData && catData.length > 0) {
+    categories = catData;
+  }
+  if (dishData && dishData.length > 0) {
+    dishes = dishData;
+  }
+
+  console.log('Menu successfully loaded from Supabase database.');
+}
+
+/* ══════════════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
   /* Setup Language Switcher first to get currentLang */
   initLanguageSwitch();
 
-  /* Build the menu from menu-data.js */
-  renderCategories();
-  renderDishes();
-  renderExcellenceCarousel();
+  // Show a loading spinner in the menu container while fetching
+  const menuContainer = document.getElementById('menu');
+  if (menuContainer) {
+    menuContainer.innerHTML = `
+      <div style="text-align:center; padding: 100px 20px; color:var(--clr-gold-start);">
+        <span class="spinner" style="border-width: 3px; width: 40px; height: 40px; border-color: var(--clr-gold-start) transparent var(--clr-gold-start) var(--clr-gold-start);"></span>
+        <p style="margin-top: 15px; font-size: 1.1rem; letter-spacing: 0.05em;" data-i18n="loading_menu">جاري تحميل قائمة الطعام...</p>
+      </div>
+    `;
+  }
 
-  /* Wire all interactions */
+  /* Wire static elements immediately */
   initHeroScroll();
-  initCategoryTabs();
-  initReveal();
   initSearch();
-  initDishCardDelegation();
-  initDishModal();
   initCart();
   initParticles();
-  initExcellenceCarousel();
-  initLazyImages();
-
-  /* Handle routing/scrolling AFTER rendering is complete */
+  initDishModal();
+  initPromoModal();
   handleHashRouting();
+
+  /* Load menu from database asynchronously in the background */
+  loadMenuFromSupabase()
+    .then(() => {
+      // Clear loading and build the menu
+      renderCategories();
+      renderDishes();
+
+      // Bind dynamic elements
+      initCategoryTabs();
+      initDishCardDelegation();
+      initReveal();
+      initLazyImages();
+    })
+    .catch(error => {
+      console.error('Failed to load menu from Supabase:', error);
+      if (menuContainer) {
+        menuContainer.innerHTML = `
+          <div style="text-align:center; padding: 80px 20px; color:#ff4d4d; font-size:1.15rem; font-weight:bold;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom:15px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p>فشل الاتصال بقاعدة البيانات. الرجاء التحقق من إعدادات الاتصال.</p>
+          </div>
+        `;
+      }
+    });
 
   /* Register Service Worker for PWA */
   if ('serviceWorker' in navigator) {
